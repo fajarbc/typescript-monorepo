@@ -14,5 +14,8 @@
         "concurrently": "^5.2.0",
         "ts-node-dev": "^2.0.0",
         "wsrun": "^5.2.0"
+    },
+    "dependencies": {
+        "ws": "^8.8.1"
     }
 }

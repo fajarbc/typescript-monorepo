@@ -3,16 +3,17 @@ import * as trpc from "@trpc/server"
 import * as trpcExpress from "@trpc/server/adapters/express"
 import cors from "cors"
 import { z } from "zod"
+import { Subscription } from "@trpc/server";
+import { EventEmitter }from "events"
+
+const ee = new EventEmitter();
 
 interface chatMessage {
   user: string;
   message: string;
 }
 
-const messages: chatMessage[] = [
-  {user: "Alice", message: "Hello Bob"},
-  {user: "Bob", message: "Hi Alice"},
-];
+const messages: chatMessage[] = [];
 
 const appRouter = trpc.router()
 .query("hello", {
@@ -33,9 +34,25 @@ const appRouter = trpc.router()
   }),
   resolve({input}) {
     messages.push(input)
+    console.log("[S] mutation addMessage", input);
+    ee.emit("add", input)
     return input
   }
+}).subscription("onAdd", {
+  resolve() {
+    return new Subscription<chatMessage>(emit => {
+      const onAdd = (data: chatMessage) => {
+        emit.data(data)
+      };
+      ee.on("add", onAdd);
+      console.log("[S] subscription onAdd");
+      return () => {
+        ee.off("add", onAdd);
+      };
+    })
+  }
 })
+
 
 export type AppRouter = typeof appRouter
 
@@ -43,18 +60,31 @@ const app = express();
 const port = 8080;
 
 app.use(cors())
+const serverOptions = {
+  router: appRouter,
+  createContext: () => null,
+};
 app.use(
   "/trpc",
-  trpcExpress.createExpressMiddleware({
-    router: appRouter,
-    createContext: () => null,
-  })
+  trpcExpress.createExpressMiddleware(serverOptions)
 )
 
 app.get("/", (req, res) => {
   res.send("Hello from api-server");
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`api-server listening at http://localhost:${port}`);
+});
+
+import { applyWSSHandler } from '@trpc/server/adapters/ws';
+import ws from 'ws';
+// ws server
+const wss = new ws.Server({ server });
+applyWSSHandler<AppRouter>({
+  wss,
+  router: appRouter,
+  createContext() {
+    return {};
+  },
 });
