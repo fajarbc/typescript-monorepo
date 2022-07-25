@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node index.ts"
+    "start": "ts-node-dev index.ts"
   },
+  "main": "index.ts",
   "dependencies": {
     "@trpc/server": "^9.26.2",
     "cors": "^2.8.5",

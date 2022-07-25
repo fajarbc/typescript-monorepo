@@ -21,6 +21,7 @@
     "@babel/preset-typescript": "^7.10.4",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.2",
+    "@types/react-query": "^1.2.9",
     "autoprefixer": "^10.1.0",
     "babel-loader": "^8.2.2",
     "css-loader": "^6.3.0",
@@ -35,7 +36,12 @@
     "webpack-dev-server": "^4.3.1"
   },
   "dependencies": {
+    "@trpc/client": "^9.26.2",
+    "@trpc/react": "^9.26.2",
+    "api-server": "1.0.0",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-query": "^4.0.0",
+    "zod": "^3.17.10"
   }
 }
